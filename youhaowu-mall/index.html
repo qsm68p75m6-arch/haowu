@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>有郝物 - 发现好物，应有尽有</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    /* 首页专属样式 */
+    .banner-section {
+      width: 100%;
+      height: 420px;
+      position: relative;
+      overflow: hidden;
+      margin-top: 80px;
+    }
+
+    .banner-slider {
+      display: flex;
+      height: 100%;
+      transition: transform 0.5s ease;
+    }
+
+    .banner-slide {
+      min-width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .banner-slide .banner-content {
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .banner-slide .banner-content h2 {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .banner-slide .banner-content p {
+      font-size: 24px;
+      opacity: 0.9;
+    }
+
+    .banner-arrows {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: space-between;
+      padding: 0 20px;
+      pointer-events: none;
+    }
+
+    .banner-arrow {
+      width: 50px;
+      height: 50px;
+      background: rgba(255, 127, 36, 0.6);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.3s ease;
+    }
+
+    .banner-arrow:hover {
+      background: rgba(255, 127, 36, 0.9);
+    }
+
+    .banner-dots {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+    }
+
+    .banner-dot {
+      width: 12px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .banner-dot.active {
+      background: var(--primary-color);
+      transform: scale(1.2);
+    }
+
+    /* 商品推荐区 */
+    .recommend-section {
+      padding: 30px 0;
+    }
+
+    .recommend-block {
+      margin-bottom: 30px;
+    }
+
+    .recommend-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .recommend-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--primary-color);
+    }
+
+    .recommend-more {
+      font-size: 14px;
+      color: var(--text-gray);
+      transition: color 0.3s;
+    }
+
+    .recommend-more:hover {
+      color: var(--primary-color);
+    }
+
+    .recommend-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    /* 分类导航区 */
+    .category-section {
+      background: var(--bg-white);
+      padding: 30px 0;
+    }
+
+    .category-wrapper {
+      display: flex;
+      gap: 20px;
+    }
+
+    .category-main {
+      width: 240px;
+      background: var(--bg-light);
+      border-radius: var(--radius-md);
+      padding: 15px;
+    }
+
+    .category-main-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .category-main-item:hover {
+      background: var(--bg-white);
+      color: var(--primary-color);
+    }
+
+    .category-main-item .icon {
+      font-size: 24px;
+    }
+
+    .category-main-item .name {
+      font-size: 14px;
+    }
+
+    .category-sub {
+      flex: 1;
+    }
+
+    .category-sub-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .category-sub-tag {
+      padding: 8px 20px;
+      background: var(--bg-light);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .category-sub-tag:hover {
+      background: var(--primary-color);
+      color: var(--bg-white);
+    }
+
+    .category-sub-label {
+      font-size: 14px;
+      color: var(--text-gray);
+      margin-bottom: 10px;
+      padding-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-logo" onclick="location.href='index.html'">
+        <span>🛒</span>
+        <span>有郝物</span>
+      </div>
+
+      <div class="navbar-menu">
+        <a href="index.html" class="active">首页</a>
+        <a href="category.html">全部分类</a>
+        <a href="orders.html">我的订单</a>
+        <a href="#">客服中心</a>
+      </div>
+
+      <div class="navbar-search">
+        <input type="text" placeholder="搜索好物，应有尽有">
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <div class="navbar-actions">
+        <div class="auth-buttons">
+          <button class="btn btn-secondary btn-login">登录</button>
+          <button class="btn btn-primary btn-register">注册</button>
+        </div>
+        <div class="navbar-user" style="display: none;">
+          <div class="avatar">
+            <img src="https://picsum.photos/100/100?random=user" alt="用户头像">
+          </div>
+          <span class="username">用户</span>
+          <div class="navbar-user-dropdown">
+            <a href="orders.html">我的订单</a>
+            <a href="#">我的收藏</a>
+            <a href="#">收货地址</a>
+            <a href="#" id="logoutBtn">退出登录</a>
+          </div>
+        </div>
+        <div class="navbar-cart">
+          <span class="cart-icon">🛒</span>
+          <span class="cart-badge" style="display: none;">0</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 轮播Banner区 -->
+  <section class="banner-section">
+    <div class="banner-slider" id="bannerSlider">
+      <div class="banner-slide" style="background: linear-gradient(135deg, #FF7F24 0%, #FFB366 100%);">
+        <div class="banner-content">
+          <h2>🎉 新春特惠 全场低至5折</h2>
+          <p>精选好物，限时抢购，先到先得</p>
+        </div>
+      </div>
+      <div class="banner-slide" style="background: linear-gradient(135deg, #1890FF 0%, #69C0FF 100%);">
+        <div class="banner-content">
+          <h2>📱 数码配件 品质之选</h2>
+          <p>蓝牙耳机、智能手表，科技改变生活</p>
+        </div>
+      </div>
+      <div class="banner-slide" style="background: linear-gradient(135deg, #52C41A 0%, #95DE64 100%);">
+        <div class="banner-content">
+          <h2>🏠 家居好物 品质生活</h2>
+          <p>打造温馨家居，从这里开始</p>
+        </div>
+      </div>
+    </div>
+    <div class="banner-arrows">
+      <div class="banner-arrow prev">‹</div>
+      <div class="banner-arrow next">›</div>
+    </div>
+    <div class="banner-dots" id="bannerDots"></div>
+  </section>
+
+  <!-- 主内容区 -->
+  <main class="container">
+    <!-- 商品推荐区 -->
+    <section class="recommend-section">
+      <!-- 首页推荐 -->
+      <div class="recommend-block">
+        <div class="recommend-header">
+          <h3 class="recommend-title">🔥 首页推荐</h3>
+          <a href="category.html" class="recommend-more">更多 ></a>
+        </div>
+        <div class="recommend-grid" id="recommendGrid"></div>
+      </div>
+
+      <!-- 爆款专区 -->
+      <div class="recommend-block">
+        <div class="recommend-header">
+          <h3 class="recommend-title">⭐ 爆款专区</h3>
+          <a href="category.html?tag=hot" class="recommend-more">更多 ></a>
+        </div>
+        <div class="recommend-grid" id="hotGrid"></div>
+      </div>
+
+      <!-- 新品上线 -->
+      <div class="recommend-block">
+        <div class="recommend-header">
+          <h3 class="recommend-title">🆕 新品上线</h3>
+          <a href="category.html?tag=new" class="recommend-more">更多 ></a>
+        </div>
+        <div class="recommend-grid" id="newGrid"></div>
+      </div>
+
+      <!-- 猜你喜欢 -->
+      <div class="recommend-block">
+        <div class="recommend-header">
+          <h3 class="recommend-title">💡 猜你喜欢</h3>
+          <a href="category.html" class="recommend-more">更多 ></a>
+        </div>
+        <div class="recommend-grid" id="likeGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 分类导航区 -->
+  <section class="category-section">
+    <div class="container">
+      <div class="category-wrapper">
+        <div class="category-main" id="categoryMain"></div>
+        <div class="category-sub" id="categorySub"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 底部信息区 -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-section">
+        <div class="footer-logo">
+          <span>🛒</span>
+          <span>有郝物</span>
+        </div>
+        <p>有郝物电商平台，发现好物，应有尽有。<br>为您提供优质的购物体验。</p>
+      </div>
+      <div class="footer-section">
+        <h4>联系方式</h4>
+        <p>客服电话：400-888-8888</p>
+        <p>服务时间：9:00-21:00</p>
+        <div class="footer-qrcode">
+          <img src="https://picsum.photos/100/100?random=qrcode" alt="微信公众号" style="width:100%;height:100%;object-fit:cover;border-radius:4px;">
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>帮助中心</h4>
+        <p><a href="#">购物指南</a></p>
+        <p><a href="#">支付方式</a></p>
+        <p><a href="#">售后政策</a></p>
+        <p><a href="#">常见问题</a></p>
+      </div>
+      <div class="footer-section">
+        <h4>关于我们</h4>
+        <p><a href="#">公司介绍</a></p>
+        <p><a href="#">联系我们</a></p>
+        <p><a href="#">加入我们</a></p>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <p>©2025 有郝物电商平台 所有权利保留 | <a href="#">隐私政策</a> | <a href="#">用户协议</a></p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    // 轮播Banner
+    const bannerSlider = {
+      currentIndex: 0,
+      slides: document.querySelectorAll('.banner-slide'),
+      autoPlayTimer: null,
+
+      init() {
+        const dotsContainer = document.getElementById('bannerDots');
+        this.slides.forEach((_, index) => {
+          const dot = document.createElement('div');
+          dot.className = `banner-dot ${index === 0 ? 'active' : ''}`;
+          dot.onclick = () => this.goTo(index);
+          dotsContainer.appendChild(dot);
+        });
+
+        document.querySelector('.banner-arrow.prev').onclick = () => this.prev();
+        document.querySelector('.banner-arrow.next').onclick = () => this.next();
+
+        this.startAutoPlay();
+
+        const bannerSection = document.querySelector('.banner-section');
+        bannerSection.onmouseenter = () => this.stopAutoPlay();
+        bannerSection.onmouseleave = () => this.startAutoPlay();
+      },
+
+      goTo(index) {
+        this.currentIndex = index;
+        document.getElementById('bannerSlider').style.transform = `translateX(-${index * 100}%)`;
+        document.querySelectorAll('.banner-dot').forEach((dot, i) => {
+          dot.classList.toggle('active', i === index);
+        });
+      },
+
+      prev() {
+        const newIndex = this.currentIndex === 0 ? this.slides.length - 1 : this.currentIndex - 1;
+        this.goTo(newIndex);
+      },
+
+      next() {
+        const newIndex = (this.currentIndex + 1) % this.slides.length;
+        this.goTo(newIndex);
+      },
+
+      startAutoPlay() {
+        this.autoPlayTimer = setInterval(() => this.next(), 4000);
+      },
+
+      stopAutoPlay() {
+        clearInterval(this.autoPlayTimer);
+      }
+    };
+
+    // 渲染商品卡片
+    function renderProductCard(product) {
+      const stockText = product.stock === 0 ? '无货' : product.stock < 10 ? `仅剩 ${product.stock} 件` : '有货';
+      const stockClass = product.stock === 0 ? 'out' : product.stock < 10 ? 'low' : '';
+
+      return `
+        <div class="product-card" onclick="location.href='product.html?id=${product.id}'">
+          ${product.tags && product.tags.length > 0 ? `
+            <span class="product-card-tag ${product.tags[0] === '特惠' || product.tags[0] === '立减' ? 'sale' : 'new'}">${product.tags[0]}</span>
+          ` : ''}
+          <div class="product-card-image">
+            <img src="${product.images[0]}" alt="${product.name}">
+          </div>
+          <div class="product-card-info">
+            <h4 class="product-card-name">${product.name}</h4>
+            <div class="product-card-price">
+              <span class="current-price">¥${product.currentPrice}</span>
+              ${product.originalPrice > product.currentPrice ? `
+                <span class="original-price">¥${product.originalPrice}</span>
+              ` : ''}
+            </div>
+            <div class="product-card-stock ${stockClass}">${stockText}</div>
+          </div>
+          <div class="product-card-actions" onclick="event.stopPropagation()">
+            <button class="btn btn-secondary btn-sm" onclick="handleAddToCart(${product.id})">加入购物车</button>
+            <button class="btn btn-primary btn-sm" onclick="handleBuyNow(${product.id})">立即购买</button>
+          </div>
+          <div class="product-card-sales">已售 ${product.sales} 件</div>
+        </div>
+      `;
+    }
+
+    // 添加到购物车
+    function handleAddToCart(productId) {
+      const product = productsData.find(p => p.id === productId);
+      if (!product) return;
+
+      if (product.stock === 0) {
+        Modal.alert('该商品暂时无货', 'warning');
+        return;
+      }
+
+      if (product.specs && product.specs.length > 0) {
+        showSpecModal(product, 'cart');
+      } else {
+        User.addToCart(product, 1);
+        Modal.alert('已加入购物车', 'success');
+      }
+    }
+
+    // 立即购买
+    function handleBuyNow(productId) {
+      const product = productsData.find(p => p.id === productId);
+      if (!product) return;
+
+      if (product.stock === 0) {
+        Modal.alert('该商品暂时无货', 'warning');
+        return;
+      }
+
+      if (!User.checkLogin()) {
+        Modal.confirm('请先登录后再购买', () => {
+          showLoginModal();
+        });
+        return;
+      }
+
+      if (product.specs && product.specs.length > 0) {
+        showSpecModal(product, 'buy');
+      } else {
+        location.href = `checkout.html?productId=${product.id}&quantity=1`;
+      }
+    }
+
+    // 规格选择弹窗
+    function showSpecModal(product, action) {
+      let selectedSpecs = {};
+
+      const specsHtml = product.specs.map(spec => `
+        <div class="form-group">
+          <label class="form-label">${spec.name}</label>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            ${spec.options.map((opt, i) => `
+              <button class="btn ${i === 0 ? 'btn-primary' : 'btn-outline'} spec-option"
+                      data-spec="${spec.name}" data-value="${opt}"
+                      onclick="selectSpec(this, '${spec.name}', '${opt}')">
+                ${opt}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      Modal.show({
+        title: '选择规格',
+        content: `
+          <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+            <img src="${product.images[0]}" style="width: 80px; height: 80px; border-radius: 8px; object-fit: cover;">
+            <div>
+              <div style="font-size: 18px; color: var(--primary-color); font-weight: bold;">¥${product.currentPrice}</div>
+              <div style="font-size: 12px; color: var(--text-gray); margin-top: 5px;">库存: ${product.stock}件</div>
+            </div>
+          </div>
+          ${specsHtml}
+          <div class="form-group">
+            <label class="form-label">购买数量</label>
+            <div class="quantity-selector">
+              <button onclick="changeQuantity(-1)">-</button>
+              <input type="number" id="specQuantity" value="1" min="1" max="${product.stock}">
+              <button onclick="changeQuantity(1)">+</button>
+            </div>
+          </div>
+        `,
+        width: 450,
+        buttons: [
+          { text: '取消', action: 'cancel' },
+          {
+            text: action === 'cart' ? '加入购物车' : '立即购买',
+            action: 'confirm',
+            type: 'btn-primary',
+            onClick: () => {
+              const quantity = parseInt(document.getElementById('specQuantity').value);
+              if (action === 'cart') {
+                User.addToCart(product, quantity, selectedSpecs);
+                Modal.alert('已加入购物车', 'success');
+              } else {
+                location.href = `checkout.html?productId=${product.id}&quantity=${quantity}`;
+              }
+            }
+          }
+        ]
+      });
+
+      // 初始化选中状态
+      product.specs.forEach(spec => {
+        selectedSpecs[spec.name] = spec.options[0];
+      });
+
+      window.selectSpec = (btn, specName, value) => {
+        const siblings = btn.parentElement.querySelectorAll('.spec-option');
+        siblings.forEach(s => s.classList.remove('btn-primary'));
+        siblings.forEach(s => s.classList.add('btn-outline'));
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn-primary');
+        selectedSpecs[specName] = value;
+      };
+
+      window.changeQuantity = (delta) => {
+        const input = document.getElementById('specQuantity');
+        const newValue = Math.max(1, Math.min(product.stock, parseInt(input.value) + delta));
+        input.value = newValue;
+      };
+    }
+
+    // 渲染分类导航
+    function renderCategories() {
+      const mainContainer = document.getElementById('categoryMain');
+      const subContainer = document.getElementById('categorySub');
+
+      mainContainer.innerHTML = categoriesData.map(cat => `
+        <div class="category-main-item" onclick="location.href='category.html?category=${encodeURIComponent(cat.name)}'">
+          <span class="icon">${cat.icon}</span>
+          <span class="name">${cat.name}</span>
+        </div>
+      `).join('');
+
+      // 渲染子分类（按行分组）
+      let subHtml = '';
+      categoriesData.forEach(cat => {
+        subHtml += `
+          <div class="category-sub-label">${cat.name}</div>
+          <div class="category-sub-row">
+            ${cat.subCategories.map(sub => `
+              <span class="category-sub-tag" onclick="location.href='category.html?category=${encodeURIComponent(cat.name)}&sub=${encodeURIComponent(sub)}'">${sub}</span>
+            `).join('')}
+          </div>
+        `;
+      });
+      subContainer.innerHTML = subHtml;
+    }
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      // 初始化轮播
+      bannerSlider.init();
+
+      // 渲染推荐商品
+      const recommendProducts = productsData.slice(0, 4);
+      const hotProducts = productsData.filter(p => p.tags.includes('爆款') || p.tags.includes('热销')).slice(0, 4);
+      const newProducts = productsData.filter(p => p.tags.includes('新品')).slice(0, 4);
+      const likeProducts = [...productsData].sort(() => Math.random() - 0.5).slice(0, 4);
+
+      document.getElementById('recommendGrid').innerHTML = recommendProducts.map(renderProductCard).join('');
+      document.getElementById('hotGrid').innerHTML = hotProducts.map(renderProductCard).join('');
+      document.getElementById('newGrid').innerHTML = newProducts.map(renderProductCard).join('');
+      document.getElementById('likeGrid').innerHTML = likeProducts.map(renderProductCard).join('');
+
+      // 渲染分类
+      renderCategories();
+    });
+  </script>
+</body>
+</html>

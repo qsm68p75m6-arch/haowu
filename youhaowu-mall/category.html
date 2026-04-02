@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>商品分类 - 有郝物</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .category-page {
+      display: flex;
+      gap: 20px;
+      padding: 20px 0;
+    }
+
+    .filter-sidebar {
+      width: 260px;
+      flex-shrink: 0;
+      background: var(--bg-white);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 100px;
+    }
+
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .filter-title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .filter-result {
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+
+    .filter-group {
+      margin-bottom: 25px;
+    }
+
+    .filter-group-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 12px;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-dark);
+    }
+
+    .filter-option input {
+      accent-color: var(--primary-color);
+    }
+
+    .filter-price-range {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .filter-price-input {
+      width: 80px;
+      height: 32px;
+      padding: 0 10px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .filter-price-input:focus {
+      border-color: var(--primary-color);
+    }
+
+    .filter-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .filter-actions .btn {
+      flex: 1;
+    }
+
+    .product-list-section {
+      flex: 1;
+    }
+
+    .product-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .product-count {
+      font-size: 14px;
+      color: var(--text-gray);
+    }
+
+    .product-count span {
+      color: var(--primary-color);
+      font-weight: 500;
+    }
+
+    .sort-options {
+      display: flex;
+      gap: 15px;
+    }
+
+    .sort-option {
+      font-size: 14px;
+      color: var(--text-gray);
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      transition: all 0.3s;
+    }
+
+    .sort-option:hover,
+    .sort-option.active {
+      color: var(--primary-color);
+      background: rgba(255, 127, 36, 0.1);
+    }
+
+    .product-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .load-more {
+      text-align: center;
+      padding: 30px;
+    }
+
+    .load-more .btn {
+      min-width: 200px;
+    }
+
+    @media (max-width: 1200px) {
+      .product-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .category-page {
+        flex-direction: column;
+      }
+
+      .filter-sidebar {
+        width: 100%;
+        position: static;
+      }
+
+      .product-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-logo" onclick="location.href='index.html'">
+        <span>🛒</span>
+        <span>有郝物</span>
+      </div>
+
+      <div class="navbar-menu">
+        <a href="index.html">首页</a>
+        <a href="category.html" class="active">全部分类</a>
+        <a href="orders.html">我的订单</a>
+        <a href="#">客服中心</a>
+      </div>
+
+      <div class="navbar-search">
+        <input type="text" placeholder="搜索好物，应有尽有">
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <div class="navbar-actions">
+        <div class="auth-buttons">
+          <button class="btn btn-secondary btn-login">登录</button>
+          <button class="btn btn-primary btn-register">注册</button>
+        </div>
+        <div class="navbar-user" style="display: none;">
+          <div class="avatar">
+            <img src="https://picsum.photos/100/100?random=user" alt="用户头像">
+          </div>
+          <span class="username">用户</span>
+          <div class="navbar-user-dropdown">
+            <a href="orders.html">我的订单</a>
+            <a href="#">我的收藏</a>
+            <a href="#">收货地址</a>
+            <a href="#" id="logoutBtn">退出登录</a>
+          </div>
+        </div>
+        <div class="navbar-cart">
+          <span class="cart-icon">🛒</span>
+          <span class="cart-badge" style="display: none;">0</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <main class="main-content container">
+    <!-- 页面标题区 -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <span id="categoryTitle">全部分类</span>
+        <span class="page-subtitle" id="subCategoryTitle"></span>
+      </h1>
+      <a href="index.html" class="btn btn-outline">返回首页</a>
+    </div>
+
+    <!-- 分类页面主体 -->
+    <div class="category-page">
+      <!-- 左侧筛选栏 -->
+      <aside class="filter-sidebar">
+        <div class="filter-header">
+          <span class="filter-title">筛选条件</span>
+          <span class="filter-result">共 <span id="totalProducts">0</span> 件商品</span>
+        </div>
+
+        <!-- 价格区间 -->
+        <div class="filter-group">
+          <div class="filter-group-title">价格区间</div>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="radio" name="price" value="all" checked>
+              <span>全部</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="price" value="0-50">
+              <span>0-50元</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="price" value="50-100">
+              <span>50-100元</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="price" value="100-200">
+              <span>100-200元</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="price" value="200-500">
+              <span>200-500元</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="price" value="500+">
+              <span>500元以上</span>
+            </label>
+          </div>
+          <div class="filter-price-range" style="margin-top: 10px;">
+            <input type="number" class="filter-price-input" id="minPrice" placeholder="最低">
+            <span>-</span>
+            <input type="number" class="filter-price-input" id="maxPrice" placeholder="最高">
+          </div>
+        </div>
+
+        <!-- 销量排序 -->
+        <div class="filter-group">
+          <div class="filter-group-title">排序方式</div>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="radio" name="sort" value="default" checked>
+              <span>综合排序</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="sort" value="sales">
+              <span>销量从高到低</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="sort" value="priceAsc">
+              <span>价格从低到高</span>
+            </label>
+            <label class="filter-option">
+              <input type="radio" name="sort" value="priceDesc">
+              <span>价格从高到低</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 库存状态 -->
+        <div class="filter-group">
+          <div class="filter-group-title">库存状态</div>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="checkbox" id="inStock" checked>
+              <span>仅看有货</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 综合筛选 -->
+        <div class="filter-group">
+          <div class="filter-group-title">综合筛选</div>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="checkbox" id="freeShipping">
+              <span>包邮</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="isNew">
+              <span>新品</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox" id="isSale">
+              <span>特惠</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 筛选按钮 -->
+        <div class="filter-actions">
+          <button class="btn btn-outline" onclick="resetFilters()">重置筛选</button>
+          <button class="btn btn-primary" onclick="applyFilters()">确认筛选</button>
+        </div>
+      </aside>
+
+      <!-- 右侧商品列表 -->
+      <section class="product-list-section">
+        <div class="product-list-header">
+          <div class="product-count">
+            为您找到 <span id="filteredCount">0</span> 件商品
+          </div>
+          <div class="sort-options">
+            <span class="sort-option active" data-sort="default">综合</span>
+            <span class="sort-option" data-sort="sales">销量</span>
+            <span class="sort-option" data-sort="priceAsc">价格↑</span>
+            <span class="sort-option" data-sort="priceDesc">价格↓</span>
+          </div>
+        </div>
+
+        <div class="product-list" id="productList"></div>
+
+        <div class="load-more">
+          <button class="btn btn-outline" id="loadMoreBtn" style="display: none;">加载更多</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- 底部信息区 -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-section">
+        <div class="footer-logo">
+          <span>🛒</span>
+          <span>有郝物</span>
+        </div>
+        <p>有郝物电商平台，发现好物，应有尽有。<br>为您提供优质的购物体验。</p>
+      </div>
+      <div class="footer-section">
+        <h4>联系方式</h4>
+        <p>客服电话：400-888-8888</p>
+        <p>服务时间：9:00-21:00</p>
+      </div>
+      <div class="footer-section">
+        <h4>帮助中心</h4>
+        <p><a href="#">购物指南</a></p>
+        <p><a href="#">支付方式</a></p>
+        <p><a href="#">售后政策</a></p>
+      </div>
+      <div class="footer-section">
+        <h4>关于我们</h4>
+        <p><a href="#">公司介绍</a></p>
+        <p><a href="#">联系我们</a></p>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <p>©2025 有郝物电商平台 所有权利保留 | <a href="#">隐私政策</a> | <a href="#">用户协议</a></p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    // 当前筛选条件
+    let currentFilters = {
+      category: null,
+      subCategory: null,
+      minPrice: null,
+      maxPrice: null,
+      sort: 'default',
+      inStock: true,
+      freeShipping: false,
+      isNew: false,
+      isSale: false
+    };
+
+    // 渲染商品卡片
+    function renderProductCard(product) {
+      const stockText = product.stock === 0 ? '无货' : product.stock < 10 ? `仅剩 ${product.stock} 件` : '有货';
+      const stockClass = product.stock === 0 ? 'out' : product.stock < 10 ? 'low' : '';
+
+      return `
+        <div class="product-card" onclick="location.href='product.html?id=${product.id}'">
+          ${product.tags && product.tags.length > 0 ? `
+            <span class="product-card-tag ${product.tags[0] === '特惠' || product.tags[0] === '立减' ? 'sale' : 'new'}">${product.tags[0]}</span>
+          ` : ''}
+          <div class="product-card-image">
+            <img src="${product.images[0]}" alt="${product.name}">
+          </div>
+          <div class="product-card-info">
+            <h4 class="product-card-name">${product.name}</h4>
+            <div class="product-card-price">
+              <span class="current-price">¥${product.currentPrice}</span>
+              ${product.originalPrice > product.currentPrice ? `
+                <span class="original-price">¥${product.originalPrice}</span>
+              ` : ''}
+            </div>
+            <div class="product-card-stock ${stockClass}">${stockText}</div>
+          </div>
+          <div class="product-card-actions" onclick="event.stopPropagation()">
+            <button class="btn btn-secondary btn-sm" onclick="handleAddToCart(${product.id})">加入购物车</button>
+            <button class="btn btn-primary btn-sm" onclick="handleBuyNow(${product.id})">立即购买</button>
+          </div>
+          <div class="product-card-sales">已售 ${product.sales} 件</div>
+        </div>
+      `;
+    }
+
+    // 添加到购物车
+    function handleAddToCart(productId) {
+      const product = productsData.find(p => p.id === productId);
+      if (!product || product.stock === 0) {
+        Modal.alert('该商品暂时无货', 'warning');
+        return;
+      }
+      User.addToCart(product, 1);
+      Modal.alert('已加入购物车', 'success');
+    }
+
+    // 立即购买
+    function handleBuyNow(productId) {
+      const product = productsData.find(p => p.id === productId);
+      if (!product || product.stock === 0) {
+        Modal.alert('该商品暂时无货', 'warning');
+        return;
+      }
+      if (!User.checkLogin()) {
+        Modal.confirm('请先登录后再购买', () => showLoginModal());
+        return;
+      }
+      location.href = `checkout.html?productId=${product.id}&quantity=1`;
+    }
+
+    // 应用筛选
+    function applyFilters() {
+      // 获取价格区间
+      const priceRadio = document.querySelector('input[name="price"]:checked').value;
+      if (priceRadio !== 'all') {
+        if (priceRadio === '500+') {
+          currentFilters.minPrice = 500;
+          currentFilters.maxPrice = null;
+        } else {
+          const [min, max] = priceRadio.split('-').map(Number);
+          currentFilters.minPrice = min;
+          currentFilters.maxPrice = max;
+        }
+      } else {
+        const minPrice = document.getElementById('minPrice').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+        currentFilters.minPrice = minPrice ? Number(minPrice) : null;
+        currentFilters.maxPrice = maxPrice ? Number(maxPrice) : null;
+      }
+
+      // 获取排序方式
+      currentFilters.sort = document.querySelector('input[name="sort"]:checked').value;
+
+      // 获取其他筛选条件
+      currentFilters.inStock = document.getElementById('inStock').checked;
+      currentFilters.freeShipping = document.getElementById('freeShipping').checked;
+      currentFilters.isNew = document.getElementById('isNew').checked;
+      currentFilters.isSale = document.getElementById('isSale').checked;
+
+      renderProducts();
+    }
+
+    // 重置筛选
+    function resetFilters() {
+      document.querySelector('input[name="price"][value="all"]').checked = true;
+      document.querySelector('input[name="sort"][value="default"]').checked = true;
+      document.getElementById('inStock').checked = true;
+      document.getElementById('freeShipping').checked = false;
+      document.getElementById('isNew').checked = false;
+      document.getElementById('isSale').checked = false;
+      document.getElementById('minPrice').value = '';
+      document.getElementById('maxPrice').value = '';
+
+      currentFilters = {
+        category: currentFilters.category,
+        subCategory: currentFilters.subCategory,
+        minPrice: null,
+        maxPrice: null,
+        sort: 'default',
+        inStock: true,
+        freeShipping: false,
+        isNew: false,
+        isSale: false
+      };
+
+      renderProducts();
+    }
+
+    // 渲染商品列表
+    function renderProducts() {
+      let filtered = [...productsData];
+
+      // 分类筛选
+      if (currentFilters.category) {
+        filtered = filtered.filter(p => p.category === currentFilters.category);
+      }
+      if (currentFilters.subCategory) {
+        filtered = filtered.filter(p => p.subCategory === currentFilters.subCategory);
+      }
+
+      // 价格筛选
+      if (currentFilters.minPrice !== null) {
+        filtered = filtered.filter(p => p.currentPrice >= currentFilters.minPrice);
+      }
+      if (currentFilters.maxPrice !== null) {
+        filtered = filtered.filter(p => p.currentPrice <= currentFilters.maxPrice);
+      }
+
+      // 库存筛选
+      if (currentFilters.inStock) {
+        filtered = filtered.filter(p => p.stock > 0);
+      }
+
+      // 其他筛选
+      if (currentFilters.isNew) {
+        filtered = filtered.filter(p => p.tags.includes('新品'));
+      }
+      if (currentFilters.isSale) {
+        filtered = filtered.filter(p => p.tags.includes('特惠'));
+      }
+
+      // 排序
+      switch (currentFilters.sort) {
+        case 'sales':
+          filtered.sort((a, b) => b.sales - a.sales);
+          break;
+        case 'priceAsc':
+          filtered.sort((a, b) => a.currentPrice - b.currentPrice);
+          break;
+        case 'priceDesc':
+          filtered.sort((a, b) => b.currentPrice - a.currentPrice);
+          break;
+      }
+
+      // 更新显示
+      document.getElementById('totalProducts').textContent = filtered.length;
+      document.getElementById('filteredCount').textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        document.getElementById('productList').innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-state-icon">📦</div>
+            <div class="empty-state-title">暂无符合条件的商品</div>
+            <div class="empty-state-desc">可尝试重置筛选条件</div>
+            <button class="btn btn-primary" onclick="resetFilters()">重置筛选</button>
+          </div>
+        `;
+      } else {
+        document.getElementById('productList').innerHTML = filtered.map(renderProductCard).join('');
+      }
+    }
+
+    // 初始化页面
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取URL参数
+      const category = Utils.getUrlParam('category');
+      const subCategory = Utils.getUrlParam('sub');
+
+      currentFilters.category = category;
+      currentFilters.subCategory = subCategory;
+
+      // 更新标题
+      if (category) {
+        document.getElementById('categoryTitle').textContent = category;
+        if (subCategory) {
+          document.getElementById('subCategoryTitle').textContent = ' - ' + subCategory;
+        }
+      }
+
+      // 渲染商品
+      renderProducts();
+
+      // 绑定排序点击事件
+      document.querySelectorAll('.sort-option').forEach(option => {
+        option.addEventListener('click', function() {
+          document.querySelectorAll('.sort-option').forEach(o => o.classList.remove('active'));
+          this.classList.add('active');
+          document.querySelector(`input[name="sort"][value="${this.dataset.sort}"]`).checked = true;
+          applyFilters();
+        });
+      });
+
+      // 绑定筛选条件变化事件
+      document.querySelectorAll('input[name="price"], input[name="sort"]').forEach(input => {
+        input.addEventListener('change', applyFilters);
+      });
+
+      document.getElementById('inStock').addEventListener('change', applyFilters);
+      document.getElementById('freeShipping').addEventListener('change', applyFilters);
+      document.getElementById('isNew').addEventListener('change', applyFilters);
+      document.getElementById('isSale').addEventListener('change', applyFilters);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的订单 - 有郝物</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .orders-page {
+      padding: 20px 0;
+    }
+
+    /* 订单状态标签 */
+    .order-tabs {
+      display: flex;
+      background: var(--bg-white);
+      border-radius: var(--radius-md);
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+
+    .order-tab {
+      padding: 15px 25px;
+      font-size: 15px;
+      color: var(--text-dark);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.3s;
+      border-bottom: 2px solid transparent;
+    }
+
+    .order-tab:hover {
+      color: var(--primary-color);
+    }
+
+    .order-tab.active {
+      color: var(--primary-color);
+      font-weight: 500;
+      border-bottom-color: var(--primary-color);
+    }
+
+    .order-tab .count {
+      margin-left: 5px;
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+
+    /* 订单卡片 */
+    .order-card {
+      background: var(--bg-white);
+      border-radius: var(--radius-md);
+      margin-bottom: 15px;
+      overflow: hidden;
+    }
+
+    .order-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background: var(--bg-light);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .order-card-header .left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .order-card-header .order-id {
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+
+    .order-card-header .order-time {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+
+    .order-card-header .status-tag {
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+    }
+
+    .status-pending_payment {
+      background: rgba(255, 77, 79, 0.1);
+      color: var(--color-red);
+    }
+
+    .status-pending_shipment {
+      background: rgba(24, 144, 255, 0.1);
+      color: var(--color-blue);
+    }
+
+    .status-pending_receipt {
+      background: rgba(255, 127, 36, 0.1);
+      color: var(--primary-color);
+    }
+
+    .status-pending_review {
+      background: rgba(82, 196, 26, 0.1);
+      color: var(--color-green);
+    }
+
+    .status-completed {
+      background: var(--bg-light);
+      color: var(--text-gray);
+    }
+
+    .status-cancelled {
+      background: var(--bg-light);
+      color: var(--text-gray);
+    }
+
+    .order-card-body {
+      padding: 20px;
+    }
+
+    .order-items {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .order-item {
+      display: flex;
+      gap: 15px;
+    }
+
+    .order-item .image {
+      width: 80px;
+      height: 80px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .order-item .image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .order-item .info {
+      flex: 1;
+    }
+
+    .order-item .name {
+      font-size: 14px;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+      cursor: pointer;
+    }
+
+    .order-item .name:hover {
+      color: var(--primary-color);
+    }
+
+    .order-item .spec {
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+
+    .order-item .price-quantity {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .order-item .price {
+      font-size: 14px;
+      color: var(--primary-color);
+    }
+
+    .order-item .quantity {
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+
+    .order-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .order-total {
+      font-size: 14px;
+      color: var(--text-dark);
+    }
+
+    .order-total .price {
+      font-size: 18px;
+      color: var(--primary-color);
+      font-weight: bold;
+    }
+
+    .order-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .order-actions .btn {
+      padding: 8px 20px;
+      font-size: 13px;
+    }
+
+    /* 物流信息 */
+    .logistics-info {
+      padding: 10px 20px;
+      background: var(--bg-light);
+      font-size: 13px;
+      color: var(--text-gray);
+    }
+
+    /* 空订单 */
+    .empty-orders {
+      text-align: center;
+      padding: 80px 20px;
+      background: var(--bg-white);
+      border-radius: var(--radius-md);
+    }
+
+    .empty-orders-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+    }
+
+    .empty-orders-title {
+      font-size: 18px;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .empty-orders-desc {
+      font-size: 14px;
+      color: var(--text-gray);
+      margin-bottom: 25px;
+    }
+
+    /* 订单详情弹窗 */
+    .order-detail-modal .info-row {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .order-detail-modal .info-label {
+      width: 80px;
+      color: var(--text-gray);
+    }
+
+    .order-detail-modal .info-value {
+      flex: 1;
+      color: var(--text-dark);
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-logo" onclick="location.href='index.html'">
+        <span>🛒</span>
+        <span>有郝物</span>
+      </div>
+
+      <div class="navbar-menu">
+        <a href="index.html">首页</a>
+        <a href="category.html">全部分类</a>
+        <a href="orders.html" class="active">我的订单</a>
+        <a href="#">客服中心</a>
+      </div>
+
+      <div class="navbar-search">
+        <input type="text" placeholder="搜索好物，应有尽有">
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <div class="navbar-actions">
+        <div class="auth-buttons">
+          <button class="btn btn-secondary btn-login">登录</button>
+          <button class="btn btn-primary btn-register">注册</button>
+        </div>
+        <div class="navbar-user" style="display: none;">
+          <div class="avatar">
+            <img src="https://picsum.photos/100/100?random=user" alt="用户头像">
+          </div>
+          <span class="username">用户</span>
+          <div class="navbar-user-dropdown">
+            <a href="orders.html">我的订单</a>
+            <a href="#">我的收藏</a>
+            <a href="#">收货地址</a>
+            <a href="#" id="logoutBtn">退出登录</a>
+          </div>
+        </div>
+        <div class="navbar-cart">
+          <span class="cart-icon">🛒</span>
+          <span class="cart-badge" style="display: none;">0</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 主内容区 -->
+  <main class="main-content container">
+    <div class="orders-page">
+      <!-- 页面标题 -->
+      <div class="page-header">
+        <h1 class="page-title">我的订单</h1>
+      </div>
+
+      <!-- 订单状态标签 -->
+      <div class="order-tabs">
+        <div class="order-tab active" data-status="all" onclick="filterOrders('all')">
+          全部<span class="count" id="countAll"></span>
+        </div>
+        <div class="order-tab" data-status="pending_payment" onclick="filterOrders('pending_payment')">
+          待付款<span class="count" id="countPendingPayment"></span>
+        </div>
+        <div class="order-tab" data-status="pending_shipment" onclick="filterOrders('pending_shipment')">
+          待发货<span class="count" id="countPendingShipment"></span>
+        </div>
+        <div class="order-tab" data-status="pending_receipt" onclick="filterOrders('pending_receipt')">
+          待收货<span class="count" id="countPendingReceipt"></span>
+        </div>
+        <div class="order-tab" data-status="pending_review" onclick="filterOrders('pending_review')">
+          待评价<span class="count" id="countPendingReview"></span>
+        </div>
+        <div class="order-tab" data-status="refund" onclick="filterOrders('refund')">
+          售后/退款<span class="count" id="countRefund"></span>
+        </div>
+      </div>
+
+      <!-- 订单列表 -->
+      <div id="orderList"></div>
+    </div>
+  </main>
+
+  <!-- 底部信息区 -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-section">
+        <div class="footer-logo">
+          <span>🛒</span>
+          <span>有郝物</span>
+        </div>
+        <p>有郝物电商平台，发现好物，应有尽有。</p>
+      </div>
+      <div class="footer-section">
+        <h4>联系方式</h4>
+        <p>客服电话：400-888-8888</p>
+      </div>
+      <div class="footer-section">
+        <h4>帮助中心</h4>
+        <p><a href="#">购物指南</a></p>
+        <p><a href="#">售后政策</a></p>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <p>©2025 有郝物电商平台 所有权利保留</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let orders = [];
+    let currentStatus = 'all';
+
+    const statusText = {
+      pending_payment: '待付款',
+      pending_shipment: '待发货',
+      pending_receipt: '待收货',
+      pending_review: '待评价',
+      completed: '已完成',
+      cancelled: '已取消',
+      refund: '售后处理中'
+    };
+
+    const logisticsText = {
+      pending_payment: '等待付款',
+      pending_shipment: '商家未发货',
+      pending_receipt: '已发货，快递：SF1234567890',
+      pending_review: '已签收',
+      completed: '交易完成',
+      cancelled: '订单已取消',
+      refund: '售后处理中'
+    };
+
+    // 初始化
+    document.addEventListener('DOMContentLoaded', function() {
+      // 检查登录
+      if (!User.checkLogin()) {
+        Modal.confirm('请先登录查看订单', () => {
+          showLoginModal();
+        });
+        return;
+      }
+
+      loadOrders();
+      renderOrders();
+      updateCounts();
+
+      // 监听URL参数
+      const status = Utils.getUrlParam('status');
+      if (status) {
+        filterOrders(status);
+      }
+    });
+
+    // 加载订单
+    function loadOrders() {
+      orders = userData.orders || [];
+
+      // 添加模拟订单数据
+      if (orders.length === 0) {
+        orders = [
+          {
+            id: 'ORD' + Date.now(),
+            items: [
+              {
+                productId: 3,
+                name: '无线蓝牙耳机 降噪运动跑步耳机',
+                image: 'https://picsum.photos/400/400?random=5',
+                price: 159,
+                quantity: 1,
+                specs: { color: '黑色' }
+              }
+            ],
+            total: 159,
+            status: 'pending_payment',
+            createTime: new Date().toISOString()
+          },
+          {
+            id: 'ORD' + (Date.now() - 86400000),
+            items: [
+              {
+                productId: 1,
+                name: '简约北欧风陶瓷水杯 家用办公茶杯',
+                image: 'https://picsum.photos/400/400?random=1',
+                price: 39,
+                quantity: 2,
+                specs: { color: '白色', capacity: '300ml' }
+              }
+            ],
+            total: 78,
+            status: 'pending_receipt',
+            createTime: new Date(Date.now() - 86400000).toISOString()
+          },
+          {
+            id: 'ORD' + (Date.now() - 172800000),
+            items: [
+              {
+                productId: 4,
+                name: '日式收纳盒 多功能桌面整理盒',
+                image: 'https://picsum.photos/400/400?random=7',
+                price: 29,
+                quantity: 3,
+                specs: { size: '中号' }
+              }
+            ],
+            total: 87,
+            status: 'completed',
+            createTime: new Date(Date.now() - 172800000).toISOString()
+          }
+        ];
+        userData.orders = orders;
+        User.save();
+      }
+    }
+
+    // 渲染订单
+    function renderOrders() {
+      const container = document.getElementById('orderList');
+      let filteredOrders = orders;
+
+      if (currentStatus !== 'all') {
+        filteredOrders = orders.filter(o => o.status === currentStatus);
+      }
+
+      // 按时间倒序
+      filteredOrders.sort((a, b) => new Date(b.createTime) - new Date(a.createTime));
+
+      if (filteredOrders.length === 0) {
+        container.innerHTML = `
+          <div class="empty-orders">
+            <div class="empty-orders-icon">📋</div>
+            <div class="empty-orders-title">暂无${currentStatus === 'all' ? '' : statusText[currentStatus]}订单</div>
+            <div class="empty-orders-desc">快去挑选心仪的商品吧！</div>
+            <button class="btn btn-primary" onclick="location.href='index.html'">去购物</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filteredOrders.map(order => renderOrderCard(order)).join('');
+    }
+
+    // 渲染订单卡片
+    function renderOrderCard(order) {
+      const statusClass = 'status-' + order.status;
+
+      return `
+        <div class="order-card">
+          <div class="order-card-header">
+            <div class="left">
+              <span class="order-id">订单号：${order.id}</span>
+              <span class="order-time">${formatDate(order.createTime)}</span>
+            </div>
+            <span class="status-tag ${statusClass}">${statusText[order.status]}</span>
+          </div>
+          <div class="order-card-body">
+            <div class="order-items">
+              ${order.items.map(item => `
+                <div class="order-item">
+                  <div class="image" onclick="location.href='product.html?id=${item.productId}'">
+                    <img src="${item.image}" alt="${item.name}">
+                  </div>
+                  <div class="info">
+                    <div class="name" onclick="location.href='product.html?id=${item.productId}'">${item.name}</div>
+                    <div class="spec">${Object.values(item.specs || {}).join(' / ') || '默认规格'}</div>
+                    <div class="price-quantity">
+                      <span class="price">¥${item.price}</span>
+                      <span class="quantity">x${item.quantity}</span>
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          <div class="logistics-info">
+            ${logisticsText[order.status]}
+          </div>
+          <div class="order-card-footer">
+            <div class="order-total">
+              实付款：<span class="price">¥${order.total.toFixed(2)}</span>
+            </div>
+            <div class="order-actions">
+              ${renderOrderActions(order)}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 渲染订单操作按钮
+    function renderOrderActions(order) {
+      const buttons = [];
+
+      switch (order.status) {
+        case 'pending_payment':
+          buttons.push(`<button class="btn btn-outline" onclick="cancelOrder('${order.id}')">取消订单</button>`);
+          buttons.push(`<button class="btn btn-primary" onclick="payOrder('${order.id}')">去付款</button>`);
+          break;
+        case 'pending_shipment':
+          buttons.push(`<button class="btn btn-outline" onclick="remindShip('${order.id}')">催发货</button>`);
+          break;
+        case 'pending_receipt':
+          buttons.push(`<button class="btn btn-outline" onclick="viewLogistics('${order.id}')">查看物流</button>`);
+          buttons.push(`<button class="btn btn-primary" onclick="confirmReceipt('${order.id}')">确认收货</button>`);
+          break;
+        case 'pending_review':
+          buttons.push(`<button class="btn btn-primary" onclick="reviewOrder('${order.id}')">去评价</button>`);
+          break;
+        case 'completed':
+          buttons.push(`<button class="btn btn-outline" onclick="viewDetail('${order.id}')">查看详情</button>`);
+          break;
+      }
+
+      return buttons.join('');
+    }
+
+    // 更新数量统计
+    function updateCounts() {
+      document.getElementById('countAll').textContent = orders.length ? `(${orders.length})` : '';
+      document.getElementById('countPendingPayment').textContent = countByStatus('pending_payment');
+      document.getElementById('countPendingShipment').textContent = countByStatus('pending_shipment');
+      document.getElementById('countPendingReceipt').textContent = countByStatus('pending_receipt');
+      document.getElementById('countPendingReview').textContent = countByStatus('pending_review');
+      document.getElementById('countRefund').textContent = countByStatus('refund');
+    }
+
+    function countByStatus(status) {
+      const count = orders.filter(o => o.status === status).length;
+      return count ? `(${count})` : '';
+    }
+
+    // 筛选订单
+    function filterOrders(status) {
+      currentStatus = status;
+      document.querySelectorAll('.order-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.status === status);
+      });
+      renderOrders();
+    }
+
+    // 格式化日期
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+    }
+
+    // 取消订单
+    function cancelOrder(orderId) {
+      Modal.confirm('确定要取消该订单吗？', () => {
+        const order = orders.find(o => o.id === orderId);
+        if (order) {
+          order.status = 'cancelled';
+          User.save();
+          renderOrders();
+          updateCounts();
+          Modal.alert('订单已取消', 'success');
+        }
+      });
+    }
+
+    // 支付订单
+    function payOrder(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (order) {
+        Modal.confirm(`确认支付 ¥${order.total.toFixed(2)} 吗？`, () => {
+          order.status = 'pending_shipment';
+          User.save();
+          renderOrders();
+          updateCounts();
+          Modal.alert('支付成功！', 'success');
+        });
+      }
+    }
+
+    // 催发货
+    function remindShip(orderId) {
+      Modal.alert('已提醒商家发货，请耐心等待', 'success');
+    }
+
+    // 查看物流
+    function viewLogistics(orderId) {
+      Modal.show({
+        title: '物流信息',
+        content: `
+          <div class="order-detail-modal">
+            <div class="info-row">
+              <span class="info-label">快递公司：</span>
+              <span class="info-value">顺丰速运</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">运单号：</span>
+              <span class="info-value">SF1234567890</span>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background: var(--bg-light); border-radius: 8px;">
+              <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                <div style="width: 8px; height: 8px; background: var(--primary-color); border-radius: 50%; margin-top: 6px;"></div>
+                <div>
+                  <div style="color: var(--primary-color); font-size: 14px;">派送中</div>
+                  <div style="font-size: 12px; color: var(--text-gray); margin-top: 5px;">快递员正在派送中，请保持电话畅通</div>
+                  <div style="font-size: 12px; color: var(--text-gray);">2025-04-02 10:30</div>
+                </div>
+              </div>
+              <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                <div style="width: 8px; height: 8px; background: var(--border-color); border-radius: 50%; margin-top: 6px;"></div>
+                <div>
+                  <div style="font-size: 14px; color: var(--text-dark);">到达北京朝阳区营业点</div>
+                  <div style="font-size: 12px; color: var(--text-gray);">2025-04-02 08:00</div>
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <div style="width: 8px; height: 8px; background: var(--border-color); border-radius: 50%; margin-top: 6px;"></div>
+                <div>
+                  <div style="font-size: 14px; color: var(--text-dark);">已发货</div>
+                  <div style="font-size: 12px; color: var(--text-gray);">2025-04-01 15:00</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        width: 500,
+        buttons: [{ text: '关闭', action: 'close', type: 'btn-primary' }]
+      });
+    }
+
+    // 确认收货
+    function confirmReceipt(orderId) {
+      Modal.confirm('确认已收到商品吗？', () => {
+        const order = orders.find(o => o.id === orderId);
+        if (order) {
+          order.status = 'pending_review';
+          User.save();
+          renderOrders();
+          updateCounts();
+          Modal.alert('确认收货成功！', 'success');
+        }
+      });
+    }
+
+    // 评价订单
+    function reviewOrder(orderId) {
+      Modal.show({
+        title: '商品评价',
+        content: `
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 24px; margin-bottom: 10px;">⭐⭐⭐⭐⭐</div>
+            <div style="font-size: 14px; color: var(--text-gray);">点击星星评分</div>
+          </div>
+          <div class="form-group">
+            <textarea class="form-input form-textarea" placeholder="分享您的购物体验吧~" style="height: 100px;"></textarea>
+          </div>
+        `,
+        width: 450,
+        buttons: [
+          { text: '取消', action: 'cancel' },
+          {
+            text: '提交评价',
+            action: 'submit',
+            type: 'btn-primary',
+            onClick: () => {
+              const order = orders.find(o => o.id === orderId);
+              if (order) {
+                order.status = 'completed';
+                User.save();
+                renderOrders();
+                updateCounts();
+                Modal.alert('评价成功！感谢您的反馈', 'success');
+              }
+            }
+          }
+        ]
+      });
+    }
+
+    // 查看详情
+    function viewDetail(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      Modal.show({
+        title: '订单详情',
+        content: `
+          <div class="order-detail-modal">
+            <div class="info-row">
+              <span class="info-label">订单号：</span>
+              <span class="info-value">${order.id}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">创建时间：</span>
+              <span class="info-value">${formatDate(order.createTime)}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">订单状态：</span>
+              <span class="info-value">${statusText[order.status]}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">实付款：</span>
+              <span class="info-value" style="color: var(--primary-color); font-size: 18px; font-weight: bold;">¥${order.total.toFixed(2)}</span>
+            </div>
+          </div>
+        `,
+        width: 450,
+        buttons: [{ text: '关闭', action: 'close', type: 'btn-primary' }]
+      });
+    }
+  </script>
+</body>
+</html>
